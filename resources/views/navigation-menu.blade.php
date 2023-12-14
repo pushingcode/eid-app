@@ -59,7 +59,7 @@
                                 {{ __('Living Diagnosys') }}
                             </x-dropdown-link>
 
-                            <x-dropdown-link href="#">
+                            <x-dropdown-link href="{{ route('ipv')}}">
                                 {{ __('IPV') }} <span class="inline-flex items-center rounded-md bg-green-50 px-3 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">{{ __('Soon') }}</span>
                             </x-dropdown-link>
 
