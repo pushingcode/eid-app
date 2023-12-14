@@ -6,6 +6,7 @@ use App\Actions\ProcessSalesData\CreateNewSalesData;
 use App\Actions\StoreResults\StoreNewResult;
 use App\Models\Dvi;
 use App\Models\Experiential;
+use App\Models\Ipv;
 use App\Models\Sale;
 use App\Models\User;
 use Carbon\Carbon;
@@ -37,22 +38,22 @@ class Test extends Component
     public string $xpath; //is promoted to component
 
     #[Rule('required|email')]
-    public $floating_email_parent = '';
+    public $floatingEmailParent = '';
 
     #[Rule('required|email')]
-    public $floating_email_institution = '';
+    public $floatingEmailInstitution = '';
 
     #[Rule('required')]
-    public $floating_first_name = '';
+    public $floatingFirstName = '';
 
     #[Rule('required')]
-    public $floating_last_name = '';
+    public $floatingLastName = '';
 
     #[Rule('required')]
-    public $floating_phone = '';
+    public $floatingPhone = '';
 
     #[Rule('required')]
-    public $floating_company = '';
+    public $floatingCompany = '';
 
     #[On('start-test')]
     public function startTest($xpath)
@@ -72,19 +73,21 @@ class Test extends Component
         if ($this->lastTest != null) {
             $salesData = Sale::where('session', $this->lastTest->session)->latest()->first();
 
-            $this->floating_email_parent = $salesData->floating_email_parent;  
-            $this->floating_email_institution = $salesData->floating_email_institution;
-            $this->floating_first_name = $salesData->floating_first_name;
-            $this->floating_last_name = $salesData->floating_last_name;
-            $this->floating_phone = $salesData->floating_phone;
-            $this->floating_company = $salesData->floating_company;
+            $this->floatingEmailParent = $salesData->floatingEmailParent;
+            $this->floatingEmailInstitution = $salesData->floatingEmailInstitution;
+            $this->floatingFirstName = $salesData->floatingFirstName;
+            $this->floatingLastName = $salesData->floatingLastName;
+            $this->floatingPhone = $salesData->floatingPhone;
+            $this->floatingCompany = $salesData->floatingCompany;
         }
 
         if ($xpath == 'eid') {
             $this->questions = Dvi::all();
         }
 
-        //if ($xpath == 'ivp') {}
+        if ($xpath == 'ivp') {
+            $this->questions = Ipv::all();
+        }
     }
 
     public function mount()
@@ -108,14 +111,29 @@ class Test extends Component
         /**
          * Creating Experiencial Report
          */
-        $storeExperiencial = new StoreNewResult($this->user->id, Carbon::parse($this->user->birthday)->age, $this->session, $this->xpath, $this->lang, $this->timeSetted, $result);
+        $storeExperiencial = new StoreNewResult(
+            $this->user->id,
+            Carbon::parse($this->user->birthday)->age,
+            $this->session, $this->xpath,
+            $this->lang,
+            $this->timeSetted,
+            $result
+        );
         $storeExperiencial->store();
 
         /**
          * Creating Sales Force Data
          */
         $this->validate();
-        $processSalesData = new CreateNewSalesData($this->session, $this->floating_email_parent, $this->floating_email_institution, $this->floating_first_name, $this->floating_last_name, $this->floating_phone, $this->floating_company);
+        $processSalesData = new CreateNewSalesData(
+            $this->session,
+            $this->floatingEmailParent,
+            $this->floatingEmailInstitution,
+            $this->floatingFirstName,
+            $this->floatingLastName,
+            $this->floatingPhone,
+            $this->floatingCompany
+        );
         $processSalesData->store();
         
         redirect()->to('/dashboard');
@@ -125,7 +143,7 @@ class Test extends Component
     public function callActionAnswer(bool $state, int $question)
     {
 
-        if ($state == true) {
+        if ($state) {
 
             $dataQuest = Dvi::find($question);
 
